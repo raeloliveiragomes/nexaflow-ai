@@ -1,4 +1,6 @@
-﻿export default function Home() {
+﻿import GenerateSystemModal from '@/components/GenerateSystemModal';
+
+export default function Home() {
   return (
     <div className="min-h-screen bg-[#05060f] text-white">
       <div className="fixed inset-y-0 left-0 w-80 border-r border-white/10 bg-[#0b0d17]/90 backdrop-blur-xl shadow-2xl shadow-violet-950/20">
@@ -60,9 +62,7 @@
                 Monitoramento em tempo real dos seus sistemas gerados e resultados premium.
               </p>
             </div>
-            <button className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_20px_50px_-30px_rgba(168,85,247,0.9)] transition hover:brightness-110">
-              Gerar Sistema
-            </button>
+            <GenerateSystemModal />
           </header>
 
           <section className="grid gap-6 xl:grid-cols-[repeat(4,minmax(0,1fr))]">
