@@ -134,11 +134,13 @@ export default function Home() {
                 key={item.key}
                 type="button"
                 onClick={() => {
-                  setActiveSection(item.key);
-                  if (item.key === 'gerar-sistema') {
-                    setIsGenerateModalOpen(true);
-                  }
-                }}
+  if (item.key === "gerar-sistema") {
+    setIsGenerateModalOpen(true);
+    return;
+  }
+
+  setActiveSection(item.key);
+}}
                 className={`w-full rounded-3xl px-4 py-3 text-left transition ${activeSection === item.key ? 'bg-violet-500/15 text-violet-200 shadow-[0_0_25px_-12px_rgba(139,92,246,0.8)]' : 'hover:bg-white/5 hover:text-white'}`}
               >
                 {item.label}
@@ -175,7 +177,7 @@ export default function Home() {
                 {sectionMeta[activeSection].description}
               </p>
             </div>
-            <GenerateSystemModal isOpen={isGenerateModalOpen} setIsOpen={setIsGenerateModalOpen} />
+           
           </header>
 
           <div className="space-y-6">
@@ -476,8 +478,10 @@ export default function Home() {
                     </>
                   )}
                 </main>
+
+               
               </div>
-            </section>
+            </section> 
           )}
 
           <section className="grid gap-6 xl:grid-cols-[1.8fr_1fr]">
@@ -571,6 +575,10 @@ export default function Home() {
           </section>
         </div>
       </div>
+      <GenerateSystemModal
+  isOpen={isGenerateModalOpen}
+  onClose={() => setIsGenerateModalOpen(false)}
+/>
     </div>
   );
 }
