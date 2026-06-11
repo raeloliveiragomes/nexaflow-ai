@@ -42,7 +42,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vendas' | 'clientes' | 'pedidos' | 'estoque' | 'relatorios' | 'socio'>('dashboard');
   const [activeSection, setActiveSection] = useState<SectionKey>('dashboard');
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-
+const [systems, setSystems] = useState<SystemType[]>([]);
   const sectionMeta: Record<SectionKey, { subtitle: string; title: string; description: string }> = {
     dashboard: {
       subtitle: 'Admin',
@@ -238,7 +238,7 @@ export default function Home() {
                     created: "19 Mai 2026",
                     status: "Ativo",
                   },
-                ].map((system) => (
+                ...systems].map((system) => (
                   <div key={system.name} className="rounded-[1.75rem] border border-slate-700 bg-slate-950/95 p-6 shadow-[0_20px_80px_-50px_rgba(0,0,0,0.5)] transition duration-300 ease-out transform-gpu hover:-translate-y-2 hover:shadow-[0_45px_120px_-60px_rgba(79,70,229,0.6)] hover:[transform:perspective(1200px)_rotateX(2deg)]">
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -578,6 +578,20 @@ export default function Home() {
       <GenerateSystemModal
   isOpen={isGenerateModalOpen}
   onClose={() => setIsGenerateModalOpen(false)}
+  onCreateSystem={(system) => {
+    setSystems((currentSystems) => [
+      {
+        name: system.name,
+        type: system.type,
+        modules: system.modules,
+        created: "Hoje",
+        status: "Ativo",
+      },
+      ...currentSystems,
+    ]);
+
+    setActiveSection("meus-sistemas");
+  }}
 />
     </div>
   );
