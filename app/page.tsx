@@ -40,8 +40,10 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vendas' | 'clientes' | 'pedidos' | 'estoque' | 'relatorios' | 'socio'>('dashboard');
 
   return (
-    <div className="min-h-screen bg-[#05060f] text-white">
-      <div className="fixed inset-y-0 left-0 w-80 border-r border-white/10 bg-[#0b0d17]/90 backdrop-blur-xl shadow-2xl shadow-violet-950/20">
+    <div className="relative min-h-screen overflow-hidden bg-[#05060f] text-white">
+      <div className="fixed inset-y-0 left-0 w-80 border-r border-white/10 bg-[#100f1f]/80 backdrop-blur-2xl shadow-[0_25px_120px_-60px_rgba(79,70,229,0.65)]">
+        <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.18),_transparent_42%)]" />
+        <div className="absolute -right-10 top-1/4 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl" />
         <div className="flex h-full flex-col px-8 py-10">
           <div className="mb-12">
             <div className="inline-flex items-center gap-3 rounded-3xl border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-sm font-semibold text-violet-200 shadow-[0_0_40px_-30px_rgba(139,92,246,0.8)]">
@@ -90,9 +92,11 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="ml-80 min-h-screen px-10 py-8">
+      <div className="relative ml-80 min-h-screen px-10 py-8">
+        <div className="pointer-events-none absolute -right-40 top-12 h-52 w-52 rounded-full bg-violet-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute left-1/2 top-32 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-400/10 blur-3xl" />
         <div className="flex flex-col gap-8">
-          <header className="flex items-center justify-between rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-[0_0_30px_-20px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+          <header className="relative flex items-center justify-between overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 p-6 shadow-[0_40px_120px_-80px_rgba(99,102,241,0.45)] backdrop-blur-2xl before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.18),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.16),_transparent_28%)] before:opacity-90 before:pointer-events-none">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">Admin</p>
               <h2 className="mt-2 text-3xl font-semibold text-white">Dashboard SaaS</h2>
@@ -110,26 +114,19 @@ export default function Home() {
               { value: "R$ 487K", label: "Receita Mensal", change: "+12%" },
               { value: "74,1%", label: "Engajamento IA", change: "+27%" },
             ].map((metric) => (
-              <div key={metric.label} className="rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_40px_-26px_rgba(139,92,246,0.6)]">
-                <p className="text-sm uppercase tracking-[0.25em] text-slate-400">{metric.label}</p>
-                <div className="mt-6 flex items-end justify-between gap-4">
-                  <p className="text-4xl font-semibold text-white">{metric.value}</p>
-                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">
-                    {metric.change}
-                  </span>
-                </div>
+              <div key={metric.label} className="group transform-gpu rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-950/90 to-slate-900/70 p-6 shadow-[0_30px_90px_-60px_rgba(79,70,229,0.65)] transition duration-300 ease-out hover:-translate-y-2 hover:shadow-[0_40px_120px_-60px_rgba(79,70,229,0.85)] hover:[transform:perspective(1200px)_rotateX(2deg)]">
               </div>
             ))}
           </section>
 
           <section className="space-y-6">
-            <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_40px_-30px_rgba(139,92,246,0.55)]">
+            <div className="rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-[0_40px_120px_-90px_rgba(79,70,229,0.45)] transition duration-300 ease-out hover:-translate-y-0.5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">Meus Sistemas</p>
                   <h3 className="mt-3 text-2xl font-semibold text-white">Sistemas gerados recentemente</h3>
                 </div>
-                <button className="rounded-3xl border border-violet-500/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">
+                <button className="rounded-3xl border border-cyan-400/30 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-100 shadow-[0_20px_50px_-40px_rgba(34,211,238,0.45)] transition duration-300 ease-out hover:bg-cyan-500/15 hover:text-white">
                   Ver todos
                 </button>
               </div>
@@ -158,7 +155,7 @@ export default function Home() {
                     status: "Ativo",
                   },
                 ].map((system) => (
-                  <div key={system.name} className="rounded-[1.75rem] border border-white/10 bg-[#0f1227]/95 p-6 shadow-[0_0_30px_-15px_rgba(0,0,0,0.35)] transition hover:-translate-y-1 hover:border-violet-500/20">
+                  <div key={system.name} className="rounded-[1.75rem] border border-slate-700 bg-slate-950/95 p-6 shadow-[0_20px_80px_-50px_rgba(0,0,0,0.5)] transition duration-300 ease-out transform-gpu hover:-translate-y-2 hover:shadow-[0_45px_120px_-60px_rgba(79,70,229,0.6)] hover:[transform:perspective(1200px)_rotateX(2deg)]">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{system.type}</p>
@@ -170,7 +167,7 @@ export default function Home() {
                     </div>
                     <div className="mt-5 flex flex-wrap gap-2">
                       {system.modules.map((module) => (
-                        <span key={module} className="rounded-2xl bg-white/5 px-3 py-2 text-xs text-slate-300">
+                        <span key={module} className="rounded-2xl bg-cyan-500/10 px-3 py-2 text-xs font-medium text-cyan-100 ring-1 ring-cyan-500/10">
                           {module}
                         </span>
                       ))}
@@ -181,7 +178,7 @@ export default function Home() {
                         setActiveSystem(system);
                         setActiveTab('dashboard');
                       }}
-                      className="mt-6 inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_20px_50px_-30px_rgba(168,85,247,0.9)] hover:brightness-110 transition"
+                      className="mt-6 inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_25px_60px_-30px_rgba(56,189,248,0.8)] transition duration-300 ease-out hover:scale-[1.01] hover:brightness-110"
                     >
                       Acessar
                     </button>
@@ -192,7 +189,7 @@ export default function Home() {
           </section>
 
           {activeSystem && (
-            <section className="rounded-[2rem] border border-white/10 bg-[#10152a]/95 p-6 shadow-[0_0_40px_-30px_rgba(139,92,246,0.55)]">
+            <section className="rounded-[2rem] border border-slate-700 bg-slate-950/95 p-6 shadow-[0_0_40px_-30px_rgba(0,0,0,0.4)]">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
                   <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">Painel interno</p>
@@ -201,15 +198,15 @@ export default function Home() {
                 </div>
                 <button
                   onClick={() => setActiveSystem(null)}
-                  className="rounded-3xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition"
+                  className="rounded-3xl border border-cyan-400/20 bg-slate-900/95 px-5 py-3 text-sm font-semibold text-white shadow-[0_15px_60px_-45px_rgba(34,211,238,0.35)] transition duration-300 ease-out hover:bg-slate-800"
                 >
                   Fechar painel
                 </button>
               </div>
 
               <div className="mt-6 grid gap-6 xl:grid-cols-[280px_1fr]">
-                <aside className="rounded-[1.75rem] border border-white/10 bg-[#0b0f1f]/95 p-5">
-                  <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Navegação</p>
+                <aside className="rounded-[1.75rem] border border-white/10 bg-white/5 backdrop-blur-xl p-5 shadow-[0_20px_70px_-50px_rgba(79,70,229,0.35)]">
+                  <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Navegação</p>
                   <div className="mt-4 space-y-2">
                     {[
                       { key: 'dashboard', label: 'Dashboard' },
@@ -223,7 +220,7 @@ export default function Home() {
                       <button
                         key={item.key}
                         onClick={() => setActiveTab(item.key as typeof activeTab)}
-                        className={`w-full rounded-3xl px-4 py-3 text-left text-sm font-medium transition ${activeTab === item.key ? 'bg-violet-500/15 text-white' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}
+                        className={`w-full rounded-3xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${activeTab === item.key ? 'border-cyan-400/40 bg-cyan-500/10 text-white shadow-[0_15px_60px_-40px_rgba(34,211,238,0.45)]' : 'border-slate-700 bg-slate-950/90 text-slate-300 hover:border-cyan-400/20 hover:bg-slate-900/95 hover:text-white'}`}
                       >
                         {item.label}
                       </button>
@@ -231,7 +228,7 @@ export default function Home() {
                   </div>
                 </aside>
 
-                <main className="rounded-[1.75rem] border border-white/10 bg-[#11172e]/95 p-6">
+                <main className="rounded-[1.75rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-[0_20px_70px_-50px_rgba(79,70,229,0.2)]">
                   {activeTab === 'dashboard' && (
                     <>
                       <div className="grid gap-4 sm:grid-cols-3">
@@ -240,13 +237,13 @@ export default function Home() {
                           { label: 'Leads', value: '1.590' },
                           { label: 'Taxa de Conversão', value: '8,4%' },
                         ].map((item) => (
-                          <div key={item.label} className="rounded-[1.5rem] border border-white/10 bg-[#0f1227]/90 p-4">
+                          <div key={item.label} className="rounded-[1.5rem] border border-slate-700 bg-slate-900/90 p-4">
                             <p className="text-xs uppercase tracking-[0.25em] text-slate-500">{item.label}</p>
                             <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
                           </div>
                         ))}
                       </div>
-                      <div className="mt-6 rounded-[1.75rem] border border-violet-500/10 bg-gradient-to-br from-[#130f2f] via-[#1f1841] to-[#100d20] p-6">
+                      <div className="mt-6 rounded-[1.75rem] border border-slate-700 bg-slate-900/90 p-6">
                         <p className="text-sm text-slate-400">Resumo do sistema</p>
                         <p className="mt-4 text-lg font-medium text-white">
                           Este painel reúne vendas, clientes e estoque para aumentar a eficiência operacional e melhorar resultados comerciais.
@@ -258,7 +255,7 @@ export default function Home() {
                   {activeTab === 'vendas' && (
                     <>
                       <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="rounded-[1.5rem] border border-white/10 bg-[#0f1227]/90 p-4">
+                      <div className="rounded-[1.5rem] border border-slate-700 bg-slate-900/90 p-4">
                           <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Receita</p>
                           <p className="mt-3 text-2xl font-semibold text-white">R$ 184.500</p>
                         </div>
@@ -372,8 +369,8 @@ export default function Home() {
 
                   {activeTab === 'socio' && (
                     <>
-                      <div className="rounded-[1.75rem] border border-violet-500/10 bg-[#130f2f]/95 p-6">
-                        <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">Sócio Digital IA</p>
+                      <div className="rounded-[1.75rem] border border-slate-700 bg-slate-900/95 p-6">
+                        <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Sócio Digital IA</p>
                         <p className="mt-4 text-lg font-medium text-white">
                           Recomendação estratégica para vender mais, automatizar atendimento, controlar estoque e melhorar resultados.
                         </p>
