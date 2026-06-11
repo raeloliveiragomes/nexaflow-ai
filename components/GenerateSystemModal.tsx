@@ -3,6 +3,11 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 
+type GenerateSystemModalProps = {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+};
+
 type SystemModules = {
   [key: string]: {
     modules: string[];
@@ -45,10 +50,15 @@ const systemModules: SystemModules = {
   },
 };
 
-export default function GenerateSystemModal() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function GenerateSystemModal({ isOpen, setIsOpen }: GenerateSystemModalProps) {
   const [companyType, setCompanyType] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setShowPreview(false);
+    setCompanyType('');
+  };
 
   const handleGeneratePreview = () => {
     if (companyType.trim()) {
@@ -80,28 +90,23 @@ export default function GenerateSystemModal() {
       {isOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
-          onClick={() => {
-            setIsOpen(false);
-            setShowPreview(false);
-            setCompanyType('');
-          }}
+          onClick={handleClose}
         />
       )}
 
       {/* Modal principal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center overflow-y-auto p-4">
           <div
-            className="relative w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#0b0d17]/95 p-8 shadow-[0_20px_60px_-20px_rgba(139,92,246,0.8)] backdrop-blur-xl"
+            className="relative w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#0b0d17]/95 p-8 shadow-[0_20px_60px_-20px_rgba(139,92,246,0.8)] backdrop-blur-xl max-h-[calc(100vh-3rem)] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="generate-system-title"
           >
             {/* Botão fechar */}
             <button
-              onClick={() => {
-                setIsOpen(false);
-                setShowPreview(false);
-                setCompanyType('');
-              }}
+              onClick={handleClose}
               className="absolute right-6 top-6 rounded-full p-2 text-slate-400 hover:bg-white/10 hover:text-white transition"
             >
               <X size={24} />
@@ -152,10 +157,7 @@ export default function GenerateSystemModal() {
                 {/* Botões de ação */}
                 <div className="flex gap-3">
                   <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      setCompanyType('');
-                    }}
+                    onClick={handleClose}
                     className="flex-1 rounded-3xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition"
                   >
                     Cancelar
@@ -230,9 +232,7 @@ export default function GenerateSystemModal() {
                   <button
                     onClick={() => {
                       alert(`Sistema para ${companyType} criado com sucesso!`);
-                      setIsOpen(false);
-                      setShowPreview(false);
-                      setCompanyType('');
+                      handleClose();
                     }}
                     className="flex-1 rounded-3xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_20px_50px_-30px_rgba(16,185,129,0.9)] hover:brightness-110 transition"
                   >

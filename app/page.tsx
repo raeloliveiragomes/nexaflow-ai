@@ -36,8 +36,78 @@ const mySystems: SystemType[] = [
 ];
 
 export default function Home() {
+  type SectionKey = 'dashboard' | 'gerar-sistema' | 'meus-sistemas' | 'clientes' | 'assinaturas' | 'ia-atendimento' | 'automacao' | 'relatorios' | 'configuracoes' | 'ajuda';
+
   const [activeSystem, setActiveSystem] = useState<SystemType | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vendas' | 'clientes' | 'pedidos' | 'estoque' | 'relatorios' | 'socio'>('dashboard');
+  const [activeSection, setActiveSection] = useState<SectionKey>('dashboard');
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+
+  const sectionMeta: Record<SectionKey, { subtitle: string; title: string; description: string }> = {
+    dashboard: {
+      subtitle: 'Admin',
+      title: 'Dashboard SaaS',
+      description: 'Monitoramento em tempo real dos seus sistemas gerados e resultados premium.',
+    },
+    'gerar-sistema': {
+      subtitle: 'Gerar Sistema',
+      title: 'Crie seu próximo sistema IA',
+      description: 'Use IA para gerar sistemas com módulos inteligentes e preview instantâneo.',
+    },
+    'meus-sistemas': {
+      subtitle: 'Meus Sistemas',
+      title: 'Seus sistemas gerados',
+      description: 'Visualize, acesse e gerencie todos os sistemas criados na plataforma.',
+    },
+    clientes: {
+      subtitle: 'Clientes',
+      title: 'Gestão de clientes',
+      description: 'Entenda sua base de clientes e otimize a jornada de atendimento.',
+    },
+    assinaturas: {
+      subtitle: 'Assinaturas',
+      title: 'Planos e receitas',
+      description: 'Monitore assinaturas, renovações e receitas recorrentes.',
+    },
+    'ia-atendimento': {
+      subtitle: 'IA Atendimento',
+      title: 'Atendimento inteligente',
+      description: 'Configure chatbots e atendimento automatizado com IA.',
+    },
+    automacao: {
+      subtitle: 'Automação',
+      title: 'Fluxos automatizados',
+      description: 'Projete automações que reduzem trabalho manual e aumentam eficiência.',
+    },
+    relatorios: {
+      subtitle: 'Relatórios',
+      title: 'Insights estratégicos',
+      description: 'Acesse relatórios de performance e métricas de vendas.',
+    },
+    configuracoes: {
+      subtitle: 'Configurações',
+      title: 'Ajustes do sistema',
+      description: 'Personalize seu painel, notificações e preferências.',
+    },
+    ajuda: {
+      subtitle: 'Ajuda',
+      title: 'Suporte e documentação',
+      description: 'Encontre guias rápidos, dicas e suporte para usar o NexaFlow.',
+    },
+  };
+
+  const menuItems: { key: SectionKey; label: string }[] = [
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'gerar-sistema', label: 'Gerar Sistema' },
+    { key: 'meus-sistemas', label: 'Meus Sistemas' },
+    { key: 'clientes', label: 'Clientes' },
+    { key: 'assinaturas', label: 'Assinaturas' },
+    { key: 'ia-atendimento', label: 'IA Atendimento' },
+    { key: 'automacao', label: 'Automação' },
+    { key: 'relatorios', label: 'Relatórios' },
+    { key: 'configuracoes', label: 'Configurações' },
+    { key: 'ajuda', label: 'Ajuda' },
+  ];
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#05060f] text-white">
@@ -59,19 +129,20 @@ export default function Home() {
           </div>
 
           <nav className="space-y-2 text-sm text-slate-300">
-            {[
-              { label: "Dashboard", active: true },
-              { label: "Sistemas", active: false },
-              { label: "Métricas", active: false },
-              { label: "Relatórios", active: false },
-              { label: "Configurações", active: false },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className={`rounded-3xl px-4 py-3 transition ${item.active ? "bg-violet-500/15 text-violet-200 shadow-[0_0_25px_-12px_rgba(139,92,246,0.8)]" : "hover:bg-white/5 hover:text-white"}`}
+            {menuItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => {
+                  setActiveSection(item.key);
+                  if (item.key === 'gerar-sistema') {
+                    setIsGenerateModalOpen(true);
+                  }
+                }}
+                className={`w-full rounded-3xl px-4 py-3 text-left transition ${activeSection === item.key ? 'bg-violet-500/15 text-violet-200 shadow-[0_0_25px_-12px_rgba(139,92,246,0.8)]' : 'hover:bg-white/5 hover:text-white'}`}
               >
                 {item.label}
-              </div>
+              </button>
             ))}
           </nav>
 
@@ -98,26 +169,37 @@ export default function Home() {
         <div className="flex flex-col gap-8">
           <header className="relative flex items-center justify-between overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 p-6 shadow-[0_40px_120px_-80px_rgba(99,102,241,0.45)] backdrop-blur-2xl before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.18),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.16),_transparent_28%)] before:opacity-90 before:pointer-events-none">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">Admin</p>
-              <h2 className="mt-2 text-3xl font-semibold text-white">Dashboard SaaS</h2>
+              <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">{sectionMeta[activeSection].subtitle}</p>
+              <h2 className="mt-2 text-3xl font-semibold text-white">{sectionMeta[activeSection].title}</h2>
               <p className="mt-2 text-sm text-slate-400">
-                Monitoramento em tempo real dos seus sistemas gerados e resultados premium.
+                {sectionMeta[activeSection].description}
               </p>
             </div>
-            <GenerateSystemModal />
+            <GenerateSystemModal isOpen={isGenerateModalOpen} setIsOpen={setIsGenerateModalOpen} />
           </header>
 
-          <section className="grid gap-6 xl:grid-cols-[repeat(4,minmax(0,1fr))]">
+          <div className="space-y-6">
             {[
               { value: "1.248", label: "Sistemas Gerados", change: "+18%" },
               { value: "92,4%", label: "Taxa de Conversão", change: "+9%" },
               { value: "R$ 487K", label: "Receita Mensal", change: "+12%" },
               { value: "74,1%", label: "Engajamento IA", change: "+27%" },
             ].map((metric) => (
-              <div key={metric.label} className="group transform-gpu rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-950/90 to-slate-900/70 p-6 shadow-[0_30px_90px_-60px_rgba(79,70,229,0.65)] transition duration-300 ease-out hover:-translate-y-2 hover:shadow-[0_40px_120px_-60px_rgba(79,70,229,0.85)] hover:[transform:perspective(1200px)_rotateX(2deg)]">
+              <div key={metric.label} className="group relative transform-gpu overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-950/90 to-slate-900/70 p-6 shadow-[0_30px_90px_-60px_rgba(79,70,229,0.65)] transition duration-300 ease-out hover:-translate-y-2 hover:shadow-[0_40px_120px_-60px_rgba(79,70,229,0.85)] hover:[transform:perspective(1200px)_rotateX(2deg)]">
+                <div className="absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.20),_transparent_40%)]" />
+                <div className="absolute bottom-0 right-0 h-24 w-24 rounded-full bg-violet-500/10 blur-3xl" />
+                <div className="relative z-10">
+                  <p className="text-sm uppercase tracking-[0.25em] text-slate-400 transition-colors duration-300 group-hover:text-white/80">{metric.label}</p>
+                  <div className="mt-6 flex items-end justify-between gap-4">
+                    <p className="text-4xl font-semibold text-white">{metric.value}</p>
+                    <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300 ring-1 ring-cyan-300/20">
+                      {metric.change}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
-          </section>
+          </div>
 
           <section className="space-y-6">
             <div className="rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-[0_40px_120px_-90px_rgba(79,70,229,0.45)] transition duration-300 ease-out hover:-translate-y-0.5">
@@ -237,9 +319,12 @@ export default function Home() {
                           { label: 'Leads', value: '1.590' },
                           { label: 'Taxa de Conversão', value: '8,4%' },
                         ].map((item) => (
-                          <div key={item.label} className="rounded-[1.5rem] border border-slate-700 bg-slate-900/90 p-4">
-                            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">{item.label}</p>
-                            <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
+                          <div key={item.label} className="group relative transform-gpu overflow-hidden rounded-[1.5rem] border border-slate-700 bg-slate-900/90 p-4 shadow-[0_20px_60px_-40px_rgba(79,70,229,0.5)] transition duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_35px_80px_-40px_rgba(79,70,229,0.6)] hover:[transform:perspective(1200px)_rotateX(1deg)]">
+                            <div className="absolute inset-x-0 top-0 h-16 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.12),_transparent_35%)]" />
+                            <div className="relative z-10">
+                              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">{item.label}</p>
+                              <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
