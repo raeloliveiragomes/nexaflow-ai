@@ -143,17 +143,17 @@ export default function Home() {
             <aside className="space-y-6">
               <div className="rounded-[2rem] border border-violet-500/10 bg-[#0f1227]/90 p-6 shadow-[0_0_40px_-30px_rgba(139,92,246,0.55)]">
                 <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">Sócio Digital IA</p>
-                <h3 className="mt-4 text-2xl font-semibold text-white">Seu parceiro estratégico</h3>
+                <h3 className="mt-4 text-2xl font-semibold text-white">Análise do sistema gerado</h3>
                 <p className="mt-4 text-sm leading-6 text-slate-400">
-                  O assistente NexaFlow IA ajuda a identificar oportunidades, melhorar taxas de conversão e multiplicar receitas com modelos e automações avançadas.
+                  O assistente NexaFlow IA analisa o sistema gerado e mostra recomendações inteligentes para vender mais, automatizar atendimento, controlar estoque e melhorar resultados.
                 </p>
                 <div className="mt-6 rounded-3xl bg-[#151a37]/90 p-5 text-sm text-slate-300 ring-1 ring-violet-500/10">
-                  <p className="font-semibold text-white">Funções ativas</p>
+                  <p className="font-semibold text-white">Recomendações inteligentes</p>
                   <ul className="mt-4 space-y-3">
-                    <li>• Diagnóstico de fluxo comercial</li>
-                    <li>• Acompanhamento de resultados</li>
-                    <li>• Projeções de crescimento</li>
-                    <li>• Atendimento conversacional</li>
+                    <li>• Estratégias para aumentar vendas com funis e upsell</li>
+                    <li>• Automação do atendimento com chatbots e fluxo de mensagens</li>
+                    <li>• Controle de estoque em tempo real para evitar rupturas</li>
+                    <li>• Ajustes de performance para melhorar conversão e retenção</li>
                   </ul>
                 </div>
               </div>
@@ -162,12 +162,12 @@ export default function Home() {
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Resumo rápido</p>
                 <div className="mt-5 space-y-4">
                   <div className="rounded-3xl border border-violet-500/5 bg-white/5 p-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Nova oportunidade</p>
-                    <p className="mt-2 text-lg font-semibold text-white">Integração com CRM</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Oportunidade de vendas</p>
+                    <p className="mt-2 text-lg font-semibold text-white">Reforce campanhas de cross-sell</p>
                   </div>
                   <div className="rounded-3xl border border-cyan-500/10 bg-white/5 p-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Meta do mês</p>
-                    <p className="mt-2 text-lg font-semibold text-white">5x mais conversões</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Melhoria de atendimento</p>
+                    <p className="mt-2 text-lg font-semibold text-white">Use chat automático para pedidos e suporte</p>
                   </div>
                 </div>
               </div>
