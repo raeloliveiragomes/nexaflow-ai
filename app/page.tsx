@@ -84,6 +84,69 @@ export default function Home() {
             ))}
           </section>
 
+          <section className="space-y-6">
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_40px_-30px_rgba(139,92,246,0.55)]">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.3em] text-violet-300/80">Meus Sistemas</p>
+                  <h3 className="mt-3 text-2xl font-semibold text-white">Sistemas gerados recentemente</h3>
+                </div>
+                <button className="rounded-3xl border border-violet-500/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">
+                  Ver todos
+                </button>
+              </div>
+
+              <div className="mt-8 grid gap-5 lg:grid-cols-3">
+                {[
+                  {
+                    name: "Nexa CRM 360",
+                    type: "E-commerce",
+                    modules: ["Catálogo", "Carrinho", "Pagamento"],
+                    created: "04 Jun 2026",
+                    status: "Ativo",
+                  },
+                  {
+                    name: "Flow Analytics",
+                    type: "SaaS",
+                    modules: ["Dashboard", "Usuários", "Analytics"],
+                    created: "28 Mai 2026",
+                    status: "Ativo",
+                  },
+                  {
+                    name: "Smart Lead Bot",
+                    type: "Agência",
+                    modules: ["CRM", "Fluxo de Leads", "Chat"],
+                    created: "19 Mai 2026",
+                    status: "Ativo",
+                  },
+                ].map((system) => (
+                  <div key={system.name} className="rounded-[1.75rem] border border-white/10 bg-[#0f1227]/95 p-6 shadow-[0_0_30px_-15px_rgba(0,0,0,0.35)] transition hover:-translate-y-1 hover:border-violet-500/20">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{system.type}</p>
+                        <h4 className="mt-3 text-xl font-semibold text-white">{system.name}</h4>
+                      </div>
+                      <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs uppercase tracking-[0.2em] text-emerald-200">
+                        {system.status}
+                      </span>
+                    </div>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {system.modules.map((module) => (
+                        <span key={module} className="rounded-2xl bg-white/5 px-3 py-2 text-xs text-slate-300">
+                          {module}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="mt-5 text-sm text-slate-400">Criado em {system.created}</p>
+                    <button className="mt-6 inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_20px_50px_-30px_rgba(168,85,247,0.9)] hover:brightness-110 transition">
+                      Acessar
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
           <section className="grid gap-6 xl:grid-cols-[1.8fr_1fr]">
             <div className="space-y-6">
               <div className="rounded-[2rem] border border-violet-500/10 bg-[#10122a]/80 p-6 shadow-[0_0_40px_-30px_rgba(99,102,241,0.5)]">
