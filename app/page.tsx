@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 type SystemStatus = 'Ativo' | 'Demo' | 'Preparando';
 type SavedActionStatus = 'Pendente' | 'Em andamento' | 'Concluída';
@@ -62,12 +63,45 @@ type SavedActionType = {
   extraFields: Record<string, string>;
 };
 
-const storageKeys = {
-  systems: 'nexaflow.systems.v9',
-  actions: 'nexaflow.actions.v9',
+type SystemDbRow = {
+  id: string;
+  name: string;
+  type: string;
+  modules: string[] | null;
+  status: string | null;
+  created_label: string | null;
+  created_at?: string | null;
 };
 
-const createId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+type ActionDbRow = {
+  id: string;
+  system_id: string | null;
+  system_name: string | null;
+  module: string;
+  title: string;
+  status: string | null;
+  name: string | null;
+  responsible: string | null;
+  date: string | null;
+  priority: string | null;
+  description: string | null;
+  extra_fields: Record<string, string> | null;
+  created_label: string | null;
+  created_at?: string | null;
+};
+
+const storageKeys = {
+  systems: 'nexaflow.systems.v11',
+  actions: 'nexaflow.actions.v11',
+};
+
+const createId = () => {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
 
 const emptyForm: ActionForm = {
   name: '',
@@ -460,6 +494,75 @@ function formatActionDetails(action: SavedActionType): string[] {
   return details;
 }
 
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function normalizeSystemStatus(status: string | null | undefined): SystemStatus {
+  if (status === 'Ativo' || status === 'Demo' || status === 'Preparando') {
+    return status;
+  }
+
+  return 'Ativo';
+}
+
+function normalizeActionStatus(status: string | null | undefined): SavedActionStatus {
+  if (status === 'Pendente' || status === 'Em andamento' || status === 'Concluída') {
+    return status;
+  }
+
+  return 'Pendente';
+}
+
+function systemFromDb(row: SystemDbRow): SystemType {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    modules: row.modules ?? [],
+    created: row.created_label || (row.created_at ? new Date(row.created_at).toLocaleDateString('pt-BR') : 'Supabase'),
+    status: normalizeSystemStatus(row.status),
+    description: 'Sistema salvo no banco Supabase do NexaFlow.',
+    target: 'Cliente NexaFlow',
+  };
+}
+
+function actionFromDb(row: ActionDbRow): SavedActionType {
+  return {
+    id: row.id,
+    systemId: row.system_id ?? '',
+    title: row.title || 'Ação sem nome',
+    module: row.module,
+    system: row.system_name || 'Sistema NexaFlow',
+    created: row.created_label || (row.created_at ? new Date(row.created_at).toLocaleString('pt-BR') : ''),
+    name: row.name ?? '',
+    responsible: row.responsible ?? '',
+    date: row.date ?? '',
+    priority: row.priority || 'Prioridade normal',
+    description: row.description ?? '',
+    status: normalizeActionStatus(row.status),
+    extraFields: row.extra_fields ?? {},
+  };
+}
+
+function actionToDbPayload(action: SavedActionType) {
+  return {
+    id: action.id,
+    system_id: isUuid(action.systemId) ? action.systemId : null,
+    system_name: action.system,
+    module: action.module,
+    title: action.title,
+    status: action.status,
+    name: action.name,
+    responsible: action.responsible,
+    date: action.date,
+    priority: action.priority,
+    description: action.description,
+    extra_fields: action.extraFields ?? {},
+    created_label: action.created,
+  };
+}
+
 export default function Home() {
   const [activeSection, setActiveSection] = useState<SectionKey>('dashboard');
   const [systems, setSystems] = useState<SystemType[]>([]);
@@ -473,35 +576,64 @@ export default function Home() {
   const [statusFilter, setStatusFilter] = useState<'Todas' | SavedActionStatus>('Todas');
   const [moduleFilter, setModuleFilter] = useState('Todos');
   const [copiedText, setCopiedText] = useState('');
+  const [isLoadingDb, setIsLoadingDb] = useState(true);
+  const [dbMessage, setDbMessage] = useState('Banco online: carregando...');
 
   useEffect(() => {
-    const storedSystems = window.localStorage.getItem(storageKeys.systems) || window.localStorage.getItem('nexaflow.systems.v3');
-    const storedActions = window.localStorage.getItem(storageKeys.actions) || window.localStorage.getItem('nexaflow.actions.v3');
-
-    if (storedSystems) {
+    async function loadSupabaseData() {
       try {
-        setSystems(JSON.parse(storedSystems) as SystemType[]);
-      } catch {
-        setSystems([]);
+        const [{ data: systemRows, error: systemsError }, { data: actionRows, error: actionsError }] = await Promise.all([
+          supabase.from('nexaflow_systems').select('*').order('created_at', { ascending: false }),
+          supabase.from('nexaflow_actions').select('*').order('created_at', { ascending: false }),
+        ]);
+
+        if (systemsError) throw systemsError;
+        if (actionsError) throw actionsError;
+
+        setSystems(((systemRows ?? []) as SystemDbRow[]).map(systemFromDb));
+        setSavedActions(((actionRows ?? []) as ActionDbRow[]).map(actionFromDb));
+        setDbMessage('Banco online conectado ao Supabase');
+      } catch (error) {
+        console.error('Erro ao carregar Supabase:', error);
+        setDbMessage('Modo navegador: Supabase não respondeu');
+
+        const storedSystems = window.localStorage.getItem(storageKeys.systems) || window.localStorage.getItem('nexaflow.systems.v9');
+        const storedActions = window.localStorage.getItem(storageKeys.actions) || window.localStorage.getItem('nexaflow.actions.v9');
+
+        if (storedSystems) {
+          try {
+            setSystems(JSON.parse(storedSystems) as SystemType[]);
+          } catch {
+            setSystems([]);
+          }
+        }
+
+        if (storedActions) {
+          try {
+            setSavedActions(JSON.parse(storedActions) as SavedActionType[]);
+          } catch {
+            setSavedActions([]);
+          }
+        }
+      } finally {
+        setIsLoadingDb(false);
       }
     }
 
-    if (storedActions) {
-      try {
-        setSavedActions(JSON.parse(storedActions) as SavedActionType[]);
-      } catch {
-        setSavedActions([]);
-      }
-    }
+    loadSupabaseData();
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(storageKeys.systems, JSON.stringify(systems));
-  }, [systems]);
+    if (!isLoadingDb) {
+      window.localStorage.setItem(storageKeys.systems, JSON.stringify(systems));
+    }
+  }, [isLoadingDb, systems]);
 
   useEffect(() => {
-    window.localStorage.setItem(storageKeys.actions, JSON.stringify(savedActions));
-  }, [savedActions]);
+    if (!isLoadingDb) {
+      window.localStorage.setItem(storageKeys.actions, JSON.stringify(savedActions));
+    }
+  }, [isLoadingDb, savedActions]);
 
   const allSystems = useMemo(() => [...systems, ...demoSystems], [systems]);
 
@@ -543,7 +675,7 @@ export default function Home() {
     };
   }, [visibleActions]);
 
-  function generateSystem(model: SystemType) {
+  async function generateSystem(model: SystemType) {
     const newSystem: SystemType = {
       ...model,
       id: createId(),
@@ -551,7 +683,34 @@ export default function Home() {
       status: 'Ativo',
     };
 
-    setSystems((prev) => [newSystem, ...prev]);
+    const { data, error } = await supabase
+      .from('nexaflow_systems')
+      .insert({
+        id: newSystem.id,
+        name: newSystem.name,
+        type: newSystem.type,
+        modules: newSystem.modules,
+        status: newSystem.status,
+        created_label: newSystem.created,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erro ao salvar sistema no Supabase:', error);
+      alert('Não consegui salvar no Supabase agora. Vou manter no navegador para não travar seu trabalho.');
+      setSystems((prev) => [newSystem, ...prev]);
+      setDbMessage('Modo navegador: falha ao salvar sistema no Supabase');
+    } else {
+      const savedSystem = systemFromDb(data as SystemDbRow);
+      setSystems((prev) => [savedSystem, ...prev.filter((item) => item.id !== savedSystem.id)]);
+      setActiveSystem(savedSystem);
+      setDbMessage('Sistema salvo no Supabase');
+      setActiveTab('Dashboard');
+      setActiveSection('meus-sistemas');
+      return;
+    }
+
     setActiveSystem(newSystem);
     setActiveTab('Dashboard');
     setActiveSection('meus-sistemas');
@@ -573,29 +732,39 @@ export default function Home() {
     setEditingActionId(null);
   }
 
-  function saveAction() {
+  async function saveAction() {
     if (!activeSystem || !activeAction) return;
 
     if (editingActionId) {
-      setSavedActions((prev) =>
-        prev.map((item) =>
-          item.id === editingActionId
-            ? {
-                ...item,
-                title: activeAction,
-                module: activeTab,
-                system: activeSystem.name,
-                systemId: activeSystem.id,
-                name: actionForm.name,
-                responsible: actionForm.responsible,
-                date: actionForm.date,
-                priority: actionForm.priority,
-                description: actionForm.description,
-                extraFields: actionForm.extraFields,
-              }
-            : item,
-        ),
-      );
+      const updatedAction: SavedActionType = {
+        id: editingActionId,
+        systemId: activeSystem.id,
+        title: activeAction,
+        module: activeTab,
+        system: activeSystem.name,
+        created: savedActions.find((item) => item.id === editingActionId)?.created || new Date().toLocaleString('pt-BR'),
+        name: actionForm.name,
+        responsible: actionForm.responsible,
+        date: actionForm.date,
+        priority: actionForm.priority,
+        description: actionForm.description,
+        status: savedActions.find((item) => item.id === editingActionId)?.status || 'Pendente',
+        extraFields: actionForm.extraFields,
+      };
+
+      const { error } = await supabase
+        .from('nexaflow_actions')
+        .update(actionToDbPayload(updatedAction))
+        .eq('id', editingActionId);
+
+      if (error) {
+        console.error('Erro ao editar ação no Supabase:', error);
+        setDbMessage('Modo navegador: falha ao editar ação no Supabase');
+      } else {
+        setDbMessage('Ação editada no Supabase');
+      }
+
+      setSavedActions((prev) => prev.map((item) => (item.id === editingActionId ? { ...item, ...updatedAction } : item)));
       resetForm();
       return;
     }
@@ -616,6 +785,16 @@ export default function Home() {
       extraFields: actionForm.extraFields,
     };
 
+    const { error } = await supabase.from('nexaflow_actions').insert(actionToDbPayload(newAction));
+
+    if (error) {
+      console.error('Erro ao salvar ação no Supabase:', error);
+      alert('Não consegui salvar no Supabase agora. Vou manter no navegador para não travar seu trabalho.');
+      setDbMessage('Modo navegador: falha ao salvar ação no Supabase');
+    } else {
+      setDbMessage('Ação salva no Supabase');
+    }
+
     setSavedActions((prev) => [newAction, ...prev]);
     resetForm();
   }
@@ -635,17 +814,39 @@ export default function Home() {
     });
   }
 
-  function updateStatus(actionId: string, status: SavedActionStatus) {
+  async function updateStatus(actionId: string, status: SavedActionStatus) {
+    const { error } = await supabase.from('nexaflow_actions').update({ status }).eq('id', actionId);
+
+    if (error) {
+      console.error('Erro ao atualizar status no Supabase:', error);
+      setDbMessage('Modo navegador: falha ao atualizar status no Supabase');
+    } else {
+      setDbMessage('Status atualizado no Supabase');
+    }
+
     setSavedActions((prev) => prev.map((item) => (item.id === actionId ? { ...item, status } : item)));
   }
 
-  function deleteAction(actionId: string) {
+  async function deleteAction(actionId: string) {
+    const { error } = await supabase.from('nexaflow_actions').delete().eq('id', actionId);
+
+    if (error) {
+      console.error('Erro ao excluir ação no Supabase:', error);
+      setDbMessage('Modo navegador: falha ao excluir ação no Supabase');
+    } else {
+      setDbMessage('Ação excluída do Supabase');
+    }
+
     setSavedActions((prev) => prev.filter((item) => item.id !== actionId));
   }
 
-  function clearLocalData() {
-    const confirmClear = window.confirm('Tem certeza que deseja limpar sistemas e ações salvas neste navegador?');
+  async function clearLocalData() {
+    const confirmClear = window.confirm('Tem certeza que deseja limpar dados de teste do navegador e do Supabase?');
     if (!confirmClear) return;
+
+    await supabase.from('nexaflow_actions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('nexaflow_systems').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
     setSystems([]);
     setSavedActions([]);
     setActiveSystem(null);
@@ -653,6 +854,7 @@ export default function Home() {
     resetForm();
     window.localStorage.removeItem(storageKeys.systems);
     window.localStorage.removeItem(storageKeys.actions);
+    setDbMessage('Dados de teste limpos');
   }
 
   function buildReportText() {
@@ -693,10 +895,10 @@ export default function Home() {
   const commercialPitch = `O NexaFlow AI é um sócio digital para empresas. Ele cria sistemas por tipo de negócio, organiza atendimento, vendas, módulos, relatórios e automações. Para rádio e TV, ele controla programação, vinhetas, locutores, anunciantes, comercial, equipe e relatórios em um painel profissional.`;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#05060f] text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#05060f] text-white">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.24),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(34,211,238,0.16),_transparent_30%)]" />
 
-      <aside className="fixed inset-y-0 left-0 z-20 w-80 overflow-hidden border-r border-white/10 bg-[#080a18]/90 backdrop-blur-2xl">
+      <aside className="fixed inset-y-0 left-0 z-20 w-80 overflow-y-auto border-r border-white/10 bg-[#080a18]/90 backdrop-blur-2xl">
         <div className="flex h-full flex-col px-7 py-6">
           <div className="rounded-[2rem] border border-violet-400/20 bg-white/5 p-4 shadow-[0_0_80px_-45px_rgba(139,92,246,0.9)]">
             <p className="text-xs uppercase tracking-[0.35em] text-violet-300">NexaFlow AI</p>
@@ -724,6 +926,7 @@ export default function Home() {
           <div className="mt-4 rounded-[2rem] border border-cyan-400/10 bg-cyan-400/5 p-4">
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-200">Modo Segunda-feira</p>
             <p className="mt-2 text-xs leading-5 text-slate-300">TV e Rádio com demo pronta para painel, módulos, ações e proposta comercial.</p>
+            <p className="mt-3 rounded-2xl border border-white/10 bg-slate-950/50 px-3 py-2 text-[11px] text-emerald-200">{dbMessage}</p>
           </div>
         </div>
       </aside>
